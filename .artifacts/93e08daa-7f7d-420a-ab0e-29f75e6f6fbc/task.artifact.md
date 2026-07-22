@@ -1,0 +1,8 @@
+- [x] Modify `DB.java` to add `getTask(int id)`
+- [x] Create `fragment_add_task.xml` layout
+- [x] Create `AddTaskFragment.java`
+- [x] Update `mobile_navigation.xml` to include AddTaskFragment
+- [x] Update `MainActivity.java` to handle FAB click for navigation
+- [x] Update `TaskAdapter.java` to add item click listener
+- [x] Update `TaskFragment.java` and `UnfinishFragment.java` to handle task clicks
+- [x] Verify the implementation

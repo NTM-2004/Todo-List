@@ -13,6 +13,7 @@ import com.example.todolist.R;
 import com.example.todolist.model.Task;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -20,6 +21,7 @@ import java.util.Locale;
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
 
     private List<Task> taskList;
+    private List<Task> taskListFull;
     private OnTaskStatusChangeListener listener;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
 
@@ -30,6 +32,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     public TaskAdapter(List<Task> taskList, OnTaskStatusChangeListener listener) {
         this.taskList = taskList;
+        this.taskListFull = new ArrayList<>(taskList);
         this.listener = listener;
     }
 
@@ -75,6 +78,22 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     public void updateData(List<Task> newList) {
         this.taskList = newList;
+        this.taskListFull = new ArrayList<>(newList);
+        notifyDataSetChanged();
+    }
+
+    public void filter(String text) {
+        taskList.clear();
+        if (text.isEmpty()) {
+            taskList.addAll(taskListFull);
+        } else {
+            text = text.toLowerCase();
+            for (Task item : taskListFull) {
+                if (item.getTitle().toLowerCase().contains(text)) {
+                    taskList.add(item);
+                }
+            }
+        }
         notifyDataSetChanged();
     }
 

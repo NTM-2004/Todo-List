@@ -1,0 +1,8 @@
+- [ ] Revert `DB.java` to original state (no search parameter)
+- [ ] Create `SearchViewModel.java` for shared search state
+- [ ] Create `main_menu.xml` with `SearchView`
+- [ ] Update `TaskAdapter.java` to implement `Filterable` for in-memory filtering
+- [ ] Update `MainActivity.java` to handle search input
+- [ ] Update `TaskFragment.java` to observe search query
+- [ ] Update `UnfinishFragment.java` to observe search query
+- [ ] Verify implementation

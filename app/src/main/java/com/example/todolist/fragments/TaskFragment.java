@@ -2,7 +2,10 @@ package com.example.todolist.fragments;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -14,6 +17,7 @@ import com.example.todolist.R;
 import com.example.todolist.adapter.TaskAdapter;
 import com.example.todolist.db.DB;
 import com.example.todolist.model.Task;
+import com.example.todolist.viewmodel.SearchViewModel;
 
 import java.util.List;
 
@@ -22,6 +26,7 @@ public class TaskFragment extends Fragment implements TaskAdapter.OnTaskStatusCh
     private RecyclerView rvTasks;
     private TaskAdapter adapter;
     private DB db;
+    private SearchViewModel searchViewModel;
 
     public TaskFragment() {}
     
@@ -36,6 +41,17 @@ public class TaskFragment extends Fragment implements TaskAdapter.OnTaskStatusCh
         loadTasks();
         
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        searchViewModel = new ViewModelProvider(requireActivity()).get(SearchViewModel.class);
+        searchViewModel.getSearchQuery().observe(getViewLifecycleOwner(), query -> {
+            if (adapter != null) {
+                adapter.getFilter().filter(query);
+            }
+        });
     }
 
     private void loadTasks() {

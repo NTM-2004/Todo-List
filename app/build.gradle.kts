@@ -35,7 +35,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
@@ -43,6 +42,16 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+
+    // MPAndroidChart for statistics
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+    // ViewPager2 for tabs
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
+
+    // WorkManager for background tasks
+    implementation("androidx.work:work-runtime:2.9.1")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

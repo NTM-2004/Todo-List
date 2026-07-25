@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
@@ -12,16 +13,18 @@ import android.view.ViewGroup;
 
 import com.example.todolist.R;
 import com.example.todolist.adapter.TaskAdapter;
+import com.example.todolist.auth.SessionManager;
 import com.example.todolist.db.DB;
 import com.example.todolist.model.Task;
 
 import java.util.List;
 
-public class UnfinishFragment extends Fragment implements TaskAdapter.OnTaskStatusChangeListener {
+public class UnfinishFragment extends Fragment implements TaskAdapter.OnTaskActionListener {
 
     private RecyclerView rvUnfinishedTasks;
     private TaskAdapter adapter;
     private DB db;
+    private SessionManager sessionManager;
 
     public UnfinishFragment() {}
 
@@ -31,7 +34,9 @@ public class UnfinishFragment extends Fragment implements TaskAdapter.OnTaskStat
         View view = inflater.inflate(R.layout.fragment_unfinish, container, false);
 
         rvUnfinishedTasks = view.findViewById(R.id.rvUnfinishedTasks);
+        rvUnfinishedTasks.setLayoutManager(new LinearLayoutManager(getContext()));
         db = new DB(getContext());
+        sessionManager = new SessionManager(requireContext());
 
         loadUnfinishedTasks();
 
@@ -39,13 +44,14 @@ public class UnfinishFragment extends Fragment implements TaskAdapter.OnTaskStat
     }
 
     private void loadUnfinishedTasks() {
-        List<Task> tasks = db.getUnfinishedTasks();
+        int userId = sessionManager.getCurrentUserId();
+        List<Task> tasks = db.getTasksSortedFiltered(userId, DB.FILTER_INCOMPLETE, DB.SORT_BY_CREATED, null);
         if (adapter == null) {
             adapter = new TaskAdapter(tasks, this);
+            rvUnfinishedTasks.setAdapter(adapter);
         } else {
             adapter.updateData(tasks);
         }
-        rvUnfinishedTasks.setAdapter(adapter);
     }
 
     @Override
@@ -62,7 +68,7 @@ public class UnfinishFragment extends Fragment implements TaskAdapter.OnTaskStat
     public void onTaskClick(Task task) {
         Bundle bundle = new Bundle();
         bundle.putInt("taskId", task.getId());
-        Navigation.findNavController(getView()).navigate(R.id.fragment_add_task, bundle);
+        Navigation.findNavController(requireView()).navigate(R.id.fragment_add_task, bundle);
     }
 
     @Override

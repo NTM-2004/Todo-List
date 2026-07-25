@@ -3,20 +3,33 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@id/fragment_task">
+    app:startDestination="@id/fragment_home">
+
+    <!-- Home (tabs: All / Incomplete / Complete) -->
     <fragment
-        android:id="@+id/fragment_task"
-        android:name="com.example.todolist.fragments.TaskFragment"
-        android:label="Tasks"
-        tools:layout="@layout/fragment_task" />
+        android:id="@+id/fragment_home"
+        android:name="com.example.todolist.fragments.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home" />
+
+    <!-- Statistics -->
     <fragment
-        android:id="@+id/fragment_unfinish"
-        android:name="com.example.todolist.fragments.UnfinishFragment"
-        android:label="Unfinished Tasks"
-        tools:layout="@layout/fragment_unfinish" />
+        android:id="@+id/fragment_statistics"
+        android:name="com.example.todolist.fragments.StatisticsFragment"
+        android:label="Thống kê"
+        tools:layout="@layout/fragment_statistics" />
+
+    <!-- Add / Edit Task (reached from HomeFragment or FAB) -->
     <fragment
         android:id="@+id/fragment_add_task"
         android:name="com.example.todolist.fragments.AddTaskFragment"
-        android:label="Add/Edit Task"
-        tools:layout="@layout/fragment_add_task" />
+        android:label="Thêm / Sửa Task"
+        tools:layout="@layout/fragment_add_task">
+
+        <argument
+            android:name="taskId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
+
 </navigation>

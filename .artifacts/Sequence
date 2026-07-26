@@ -23,4 +23,55 @@ sequenceDiagram
     Adapter->>Adapter: notifyDataSetChanged()
     Adapter-->>User: Cập nhật giao diện RecyclerView
 -------------------------------------------------------
-2.
+2. Search
+sequenceDiagram
+    actor User
+    participant Home as HomeFragment
+    participant VM as TaskViewModel
+    participant TLF as TaskListFragment
+    participant Database as DB (SQLite)
+    participant Adapter as TaskAdapter
+
+    User->>Home: Nhập ký tự vào etSearch
+    Home->>Home: onTextChanged(s)
+    Home->>VM: setSearchQuery(query)
+    VM->>VM: searchQuery.setValue(query)
+    Note right of VM: LiveData thông báo tới các Fragment con
+    VM-->>TLF: onChanged(query) [via observe]
+    TLF->>TLF: loadTasks()
+    TLF->>Database: getTasksSortedFiltered(..., query)
+    Database-->>TLF: return List<Task> (Filtered)
+    TLF->>Adapter: updateData(tasks)
+    Adapter->>Adapter: notifyDataSetChanged()
+    Adapter-->>User: Hiển thị danh sách kết quả tìm kiếm
+-------------------------------------------------------
+3. Add task
+sequenceDiagram
+    actor User
+    participant AddFrag as AddTaskFragment
+    participant Picker as Date/TimePickerDialog
+    participant Database as DB (SQLite)
+    participant NotiManager as DeadlineNotificationManager
+    participant Nav as NavController
+
+    User->>AddFrag: Nhập thông tin (Title, Content...)
+    User->>AddFrag: Click btnDeadline
+    AddFrag->>Picker: showDateTimePicker()
+    Picker-->>AddFrag: Trả về thời gian (Calendar)
+    User->>AddFrag: Click btnSave
+    AddFrag->>AddFrag: saveTask()
+
+    create participant NewTask as Task Object
+    AddFrag->>NewTask: new Task(data)
+
+    AddFrag->>Database: addTask(newTask)
+    Database-->>AddFrag: return taskId
+
+    alt Notify Enabled & Deadline set
+        AddFrag->>NotiManager: scheduleDeadlineNotification(context, newTask)
+        NotiManager->>NotiManager: Set Alarm via AlarmManager
+    end
+
+    AddFrag->>AddFrag: Toast "Task đã thêm!"
+    AddFrag->>Nav: navigateUp()
+    Nav-->>User: Quay lại màn hình danh sách (Home)

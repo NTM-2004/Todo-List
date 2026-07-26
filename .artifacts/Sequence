@@ -1,0 +1,26 @@
+1. Sort
+sequenceDiagram
+    actor User
+    participant Home as HomeFragment
+    participant BS as FilterSortBottomSheet
+    participant VM as TaskViewModel
+    participant TLF as TaskListFragment
+    participant DB as DB (SQLite)
+    participant Adapter as TaskAdapter
+
+    User->>Home: Click btnSort
+    Home->>BS: new FilterSortBottomSheet(...)
+    User->>BS: Chọn tiêu chí & nhấn btnApply
+    BS->>Home: onApply(sortColumn, isAscending)
+    Home->>VM: setSortOrder(sortOrderString)
+    VM->>VM: sortOrder.setValue(value)
+    Note right of VM: LiveData phát thông báo
+    VM-->>TLF: onChanged(sortOrder) [via observe]
+    TLF->>TLF: loadTasks()
+    TLF->>DB: getTasksSortedFiltered(...)
+    DB-->>TLF: return List<Task>
+    TLF->>Adapter: updateData(tasks)
+    Adapter->>Adapter: notifyDataSetChanged()
+    Adapter-->>User: Cập nhật giao diện RecyclerView
+-------------------------------------------------------
+2.

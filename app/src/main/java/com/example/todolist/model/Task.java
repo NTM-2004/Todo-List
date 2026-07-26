@@ -18,13 +18,12 @@ public class Task {
     private Long deadline;
     private Integer status;
     private int priority;
-    private int userId;
     private boolean notifyEnabled;
 
     public Task() {}
 
     public Task(String title, String content, String category, Long createdTime,
-                Long deadline, Integer status, int priority, int userId, boolean notifyEnabled) {
+                Long deadline, Integer status, int priority, boolean notifyEnabled) {
         this.title = title;
         this.content = content;
         this.category = category;
@@ -32,7 +31,6 @@ public class Task {
         this.deadline = deadline;
         this.status = status;
         this.priority = priority;
-        this.userId = userId;
         this.notifyEnabled = notifyEnabled;
     }
 
@@ -46,7 +44,6 @@ public class Task {
         this.deadline = deadline;
         this.status = status;
         this.priority = priority;
-        this.userId = userId;
         this.notifyEnabled = notifyEnabled;
     }
 
@@ -85,9 +82,6 @@ public class Task {
 
     public int getPriority() { return priority; }
     public void setPriority(int priority) { this.priority = priority; }
-
-    public int getUserId() { return userId; }
-    public void setUserId(int userId) { this.userId = userId; }
 
     public boolean isNotifyEnabled() { return notifyEnabled; }
     public void setNotifyEnabled(boolean notifyEnabled) { this.notifyEnabled = notifyEnabled; }

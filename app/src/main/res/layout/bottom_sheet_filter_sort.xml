@@ -75,14 +75,14 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Lọc trạng thái"
+        android:text="Thứ tự"
         android:textColor="@color/text_primary"
         android:textSize="16sp"
         android:textStyle="bold"
         android:layout_marginBottom="12dp" />
 
     <com.google.android.material.chip.ChipGroup
-        android:id="@+id/cgFilter"
+        android:id="@+id/cgDirection"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="32dp"
@@ -90,42 +90,22 @@
         app:selectionRequired="true">
 
         <com.google.android.material.chip.Chip
-            android:id="@+id/chipFilterAll"
+            android:id="@+id/chipAsc"
             style="@style/Widget.Material3.Chip.Filter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="🔵 Tất cả"
+            android:text="⬆️ Tăng dần"
+            android:textColor="@color/text_primary"
+            app:chipStrokeColor="@color/divider"
+            app:chipStrokeWidth="1dp" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipDesc"
+            style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⬇️ Giảm dần"
             android:checked="true"
-            android:textColor="@color/text_primary"
-            app:chipStrokeColor="@color/divider"
-            app:chipStrokeWidth="1dp" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipFilterIncomplete"
-            style="@style/Widget.Material3.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🟡 Chưa xong"
-            android:textColor="@color/text_primary"
-            app:chipStrokeColor="@color/divider"
-            app:chipStrokeWidth="1dp" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipFilterComplete"
-            style="@style/Widget.Material3.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="✅ Hoàn thành"
-            android:textColor="@color/text_primary"
-            app:chipStrokeColor="@color/divider"
-            app:chipStrokeWidth="1dp" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipFilterOverdue"
-            style="@style/Widget.Material3.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🔴 Quá hạn"
             android:textColor="@color/text_primary"
             app:chipStrokeColor="@color/divider"
             app:chipStrokeWidth="1dp" />

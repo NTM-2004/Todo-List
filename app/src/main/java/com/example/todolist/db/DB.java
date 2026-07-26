@@ -7,9 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.todolist.model.Task;
-import com.example.todolist.model.User;
 
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,14 +26,7 @@ public class DB extends SQLiteOpenHelper {
     public static final String COLUMN_DEADLINE = "deadline";
     public static final String COLUMN_STATUS = "status";
     public static final String COLUMN_PRIORITY = "priority";
-    public static final String COLUMN_USER_ID = "user_id";
     public static final String COLUMN_NOTIFY = "notify_enabled";
-
-    // Users table
-    public static final String TABLE_USERS = "users";
-    public static final String COLUMN_USERNAME = "username";
-    public static final String COLUMN_PASSWORD_HASH = "password_hash";
-    public static final String COLUMN_EMAIL = "email";
 
     // Sort options
     public static final String SORT_BY_DEADLINE = "deadline ASC";
@@ -58,16 +49,7 @@ public class DB extends SQLiteOpenHelper {
                     COLUMN_DEADLINE + " INTEGER, " +
                     COLUMN_STATUS + " INTEGER DEFAULT 0, " +
                     COLUMN_PRIORITY + " INTEGER DEFAULT 0, " +
-                    COLUMN_USER_ID + " INTEGER DEFAULT 0, " +
                     COLUMN_NOTIFY + " INTEGER DEFAULT 0" +
-                    ");";
-
-    private static final String TABLE_USERS_CREATE =
-            "CREATE TABLE " + TABLE_USERS + " (" +
-                    COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COLUMN_USERNAME + " TEXT UNIQUE, " +
-                    COLUMN_PASSWORD_HASH + " TEXT, " +
-                    COLUMN_EMAIL + " TEXT" +
                     ");";
 
     public DB(Context context) {
@@ -77,87 +59,16 @@ public class DB extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(TABLE_TASKS_CREATE);
-        db.execSQL(TABLE_USERS_CREATE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion < 2) {
-            // Migrate v1 → v2: add new columns to tasks, create users table
+            // Migrate v1 → v2: add new columns to tasks
             db.execSQL("ALTER TABLE " + TABLE_TASKS + " ADD COLUMN " + COLUMN_PRIORITY + " INTEGER DEFAULT 0");
-            db.execSQL("ALTER TABLE " + TABLE_TASKS + " ADD COLUMN " + COLUMN_USER_ID + " INTEGER DEFAULT 0");
             db.execSQL("ALTER TABLE " + TABLE_TASKS + " ADD COLUMN " + COLUMN_NOTIFY + " INTEGER DEFAULT 0");
-            db.execSQL(TABLE_USERS_CREATE);
         }
     }
-
-    // ===================== USER METHODS =====================
-
-    public long addUser(User user) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_USERNAME, user.getUsername());
-        values.put(COLUMN_PASSWORD_HASH, hashPassword(user.getPasswordHash()));
-        values.put(COLUMN_EMAIL, user.getEmail());
-        long id = db.insert(TABLE_USERS, null, values);
-        db.close();
-        return id;
-    }
-
-    public boolean usernameExists(String username) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_USERS, new String[]{COLUMN_ID},
-                COLUMN_USERNAME + "=?", new String[]{username},
-                null, null, null);
-        boolean exists = cursor.getCount() > 0;
-        cursor.close();
-        db.close();
-        return exists;
-    }
-
-    public User validateUser(String username, String password) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String hashed = hashPassword(password);
-        Cursor cursor = db.query(TABLE_USERS, null,
-                COLUMN_USERNAME + "=? AND " + COLUMN_PASSWORD_HASH + "=?",
-                new String[]{username, hashed}, null, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            User user = cursorToUser(cursor);
-            cursor.close();
-            db.close();
-            return user;
-        }
-        if (cursor != null) cursor.close();
-        db.close();
-        return null;
-    }
-
-    private User cursorToUser(Cursor cursor) {
-        User user = new User();
-        user.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)));
-        user.setUsername(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USERNAME)));
-        user.setPasswordHash(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PASSWORD_HASH)));
-        user.setEmail(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_EMAIL)));
-        return user;
-    }
-
-    private String hashPassword(String password) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(password.getBytes("UTF-8"));
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hash) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) hexString.append('0');
-                hexString.append(hex);
-            }
-            return hexString.toString();
-        } catch (Exception e) {
-            return password; // fallback
-        }
-    }
-
-    // ===================== TASK METHODS =====================
 
     public long addTask(Task task) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -197,26 +108,24 @@ public class DB extends SQLiteOpenHelper {
         return null;
     }
 
-    public List<Task> getAllTasks(int userId) {
-        return queryTasks(userId, FILTER_ALL, SORT_BY_CREATED, null);
+    public List<Task> getAllTasks() {
+        return queryTasks(FILTER_ALL, SORT_BY_CREATED, null);
     }
 
-    public List<Task> getTasksSortedFiltered(int userId, int filter, String sortBy, String search) {
-        return queryTasks(userId, filter, sortBy, search);
+    public List<Task> getTasksSortedFiltered(int filter, String sortBy, String search) {
+        return queryTasks(filter, sortBy, search);
     }
 
-    private List<Task> queryTasks(int userId, int filter, String sortBy, String search) {
+    private List<Task> queryTasks(int filter, String sortBy, String search) {
         List<Task> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        // Validate sortBy parameter to prevent SQL injection and null errors
         if (sortBy == null || sortBy.isEmpty()) {
             sortBy = SORT_BY_CREATED;
         }
 
-        StringBuilder where = new StringBuilder(COLUMN_USER_ID + " = ?");
+        StringBuilder where = new StringBuilder("1=1");
         List<String> args = new ArrayList<>();
-        args.add(String.valueOf(userId));
         
         long now = System.currentTimeMillis();
 
@@ -283,42 +192,6 @@ public class DB extends SQLiteOpenHelper {
         return list;
     }
 
-    public int[] getStatistics(int userId) {
-        // returns [total, complete, incomplete, overdue]
-        SQLiteDatabase db = this.getReadableDatabase();
-        long now = System.currentTimeMillis();
-
-        int total = countQuery(db, "SELECT COUNT(*) FROM " + TABLE_TASKS + " WHERE " + COLUMN_USER_ID + "=" + userId);
-        int complete = countQuery(db, "SELECT COUNT(*) FROM " + TABLE_TASKS + " WHERE " + COLUMN_USER_ID + "=" + userId + " AND " + COLUMN_STATUS + "=1");
-        int incomplete = countQuery(db, "SELECT COUNT(*) FROM " + TABLE_TASKS + " WHERE " + COLUMN_USER_ID + "=" + userId + " AND " + COLUMN_STATUS + "=0");
-        int overdue = countQuery(db, "SELECT COUNT(*) FROM " + TABLE_TASKS + " WHERE " + COLUMN_USER_ID + "=" + userId + " AND " + COLUMN_STATUS + "=0 AND " + COLUMN_DEADLINE + ">0 AND " + COLUMN_DEADLINE + "<" + now);
-
-        db.close();
-        return new int[]{total, complete, incomplete, overdue};
-    }
-
-    public int[] getCategoryStats(int userId) {
-        // returns count per category: [Study, Work, Personal, Health, Finance, Other]
-        String[] categories = {"Study", "Work", "Personal", "Health", "Finance", "Other"};
-        int[] counts = new int[categories.length];
-        SQLiteDatabase db = this.getReadableDatabase();
-        for (int i = 0; i < categories.length; i++) {
-            counts[i] = countQuery(db, "SELECT COUNT(*) FROM " + TABLE_TASKS +
-                    " WHERE " + COLUMN_USER_ID + "=" + userId +
-                    " AND " + COLUMN_CATEGORY + "='" + categories[i] + "'");
-        }
-        db.close();
-        return counts;
-    }
-
-    private int countQuery(SQLiteDatabase db, String query) {
-        Cursor c = db.rawQuery(query, null);
-        int count = 0;
-        if (c.moveToFirst()) count = c.getInt(0);
-        c.close();
-        return count;
-    }
-
     private ContentValues taskToValues(Task task) {
         ContentValues values = new ContentValues();
         values.put(COLUMN_TITLE, task.getTitle());
@@ -328,7 +201,6 @@ public class DB extends SQLiteOpenHelper {
         values.put(COLUMN_DEADLINE, task.getDeadline());
         values.put(COLUMN_STATUS, task.getStatus());
         values.put(COLUMN_PRIORITY, task.getPriority());
-        values.put(COLUMN_USER_ID, task.getUserId());
         values.put(COLUMN_NOTIFY, task.isNotifyEnabled() ? 1 : 0);
         return values;
     }
@@ -343,7 +215,6 @@ public class DB extends SQLiteOpenHelper {
         task.setDeadline(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_DEADLINE)));
         task.setStatus(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_STATUS)));
         task.setPriority(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_PRIORITY)));
-        task.setUserId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_USER_ID)));
         task.setNotifyEnabled(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NOTIFY)) == 1);
         return task;
     }

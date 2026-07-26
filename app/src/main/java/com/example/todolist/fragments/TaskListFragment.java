@@ -28,23 +28,20 @@ import java.util.List;
 public class TaskListFragment extends Fragment implements TaskAdapter.OnTaskActionListener {
 
     private static final String ARG_FILTER = "filter";
-    private static final String ARG_USER_ID = "userId";
 
     private RecyclerView recyclerView;
     private TaskAdapter adapter;
     private DB db;
     private int filter;
-    private int userId;
     private String currentSort = DB.SORT_BY_CREATED;
     private String currentSearch = "";
     private List<Task> tasks = new ArrayList<>();
     private TextView tvEmpty;
 
-    public static TaskListFragment newInstance(int filter, int userId) {
+    public static TaskListFragment newInstance(int filter) {
         TaskListFragment f = new TaskListFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_FILTER, filter);
-        args.putInt(ARG_USER_ID, userId);
         f.setArguments(args);
         return f;
     }
@@ -54,7 +51,6 @@ public class TaskListFragment extends Fragment implements TaskAdapter.OnTaskActi
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             filter = getArguments().getInt(ARG_FILTER, DB.FILTER_ALL);
-            userId = getArguments().getInt(ARG_USER_ID, -1);
         }
     }
 
@@ -92,7 +88,7 @@ public class TaskListFragment extends Fragment implements TaskAdapter.OnTaskActi
 
     private void loadTasks() {
         if (db == null) return;
-        tasks = db.getTasksSortedFiltered(userId, filter, currentSort, currentSearch);
+        tasks = db.getTasksSortedFiltered(filter, currentSort, currentSearch);
         if (adapter != null) adapter.updateData(tasks);
 
         if (tvEmpty != null) {
@@ -135,7 +131,6 @@ public class TaskListFragment extends Fragment implements TaskAdapter.OnTaskActi
     public void onStatusChanged(Task task, boolean isDone) {
         task.setStatus(isDone ? Task.STATUS_COMPLETE : Task.STATUS_INCOMPLETE);
         db.updateTask(task);
-        // Refresh based on filter: if we are in "Incomplete" tab and mark as done, it should hide.
         loadTasks();
     }
 

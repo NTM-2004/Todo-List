@@ -19,7 +19,6 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.todolist.R;
-import com.example.todolist.auth.SessionManager;
 import com.example.todolist.db.DB;
 import com.example.todolist.model.Task;
 import com.example.todolist.notification.DeadlineNotificationManager;
@@ -42,7 +41,6 @@ public class AddTaskFragment extends Fragment {
     private SwitchCompat switchNotify;
 
     private DB db;
-    private SessionManager session;
     private Calendar calendar = Calendar.getInstance();
     private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
 
@@ -62,7 +60,6 @@ public class AddTaskFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         db = new DB(getContext());
-        session = new SessionManager(getContext());
 
         etTitle = view.findViewById(R.id.etTitle);
         etContent = view.findViewById(R.id.etContent);
@@ -155,7 +152,7 @@ public class AddTaskFragment extends Fragment {
 
         if (taskId == -1) {
             Task newTask = new Task(title, content, category, System.currentTimeMillis(),
-                    deadline, Task.STATUS_INCOMPLETE, priority, session.getCurrentUserId(), notify);
+                    deadline, Task.STATUS_INCOMPLETE, priority, notify);
             long id = db.addTask(newTask);
             newTask.setId((int) id);
             if (notify && deadline > 0) {

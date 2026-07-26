@@ -13,11 +13,6 @@
         tools:layout="@layout/fragment_home" />
 
     <!-- Statistics -->
-    <fragment
-        android:id="@+id/fragment_statistics"
-        android:name="com.example.todolist.fragments.StatisticsFragment"
-        android:label="Thống kê"
-        tools:layout="@layout/fragment_statistics" />
 
     <!-- Add / Edit Task (reached from HomeFragment or FAB) -->
     <fragment

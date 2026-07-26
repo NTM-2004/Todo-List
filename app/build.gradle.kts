@@ -35,6 +35,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
@@ -42,9 +43,6 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
-
-    // MPAndroidChart for statistics
-    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
     // ViewPager2 for tabs
     implementation("androidx.viewpager2:viewpager2:1.1.0")

@@ -9,19 +9,17 @@ import com.example.todolist.fragments.TaskListFragment;
 
 public class TaskPagerAdapter extends FragmentStateAdapter {
 
-    private final int userId;
     private final int[] filters;
 
-    public TaskPagerAdapter(@NonNull Fragment fragment, int userId, DB db, int[] filters, String[] titles) {
+    public TaskPagerAdapter(@NonNull Fragment fragment, DB db, int[] filters, String[] titles) {
         super(fragment);
-        this.userId = userId;
         this.filters = filters;
     }
 
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        return TaskListFragment.newInstance(filters[position], userId);
+        return TaskListFragment.newInstance(filters[position]);
     }
 
     @Override

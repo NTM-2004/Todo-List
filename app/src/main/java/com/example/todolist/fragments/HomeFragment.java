@@ -17,7 +17,6 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.todolist.R;
 import com.example.todolist.adapter.TaskPagerAdapter;
-import com.example.todolist.auth.SessionManager;
 import com.example.todolist.db.DB;
 import com.example.todolist.viewmodel.TaskViewModel;
 import com.google.android.material.tabs.TabLayout;
@@ -31,12 +30,10 @@ public class HomeFragment extends Fragment {
     private ImageButton btnSort;
 
     private DB db;
-    private SessionManager session;
-    private int userId;
     private TaskViewModel viewModel;
 
-    private int currentFilter = DB.FILTER_ALL;
-    private String currentSort = DB.SORT_BY_CREATED;
+    private String currentSortColumn = DB.COLUMN_CREATED_TIME;
+    private boolean isAscending = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -48,8 +45,6 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         db = new DB(getContext());
-        session = new SessionManager(requireContext());
-        userId = session.getCurrentUserId();
         
         // Use activity scope for shared ViewModel
         viewModel = new ViewModelProvider(requireActivity()).get(TaskViewModel.class);
@@ -68,7 +63,7 @@ public class HomeFragment extends Fragment {
         String[] tabs = {"Tất cả", "Chưa xong", "Hoàn thành"};
         int[] filters = {DB.FILTER_ALL, DB.FILTER_INCOMPLETE, DB.FILTER_COMPLETE};
 
-        TaskPagerAdapter pagerAdapter = new TaskPagerAdapter(this, userId, db, filters, tabs);
+        TaskPagerAdapter pagerAdapter = new TaskPagerAdapter(this, db, filters, tabs);
         viewPager.setAdapter(pagerAdapter);
 
         new TabLayoutMediator(tabLayout, viewPager,
@@ -89,11 +84,12 @@ public class HomeFragment extends Fragment {
     private void setupSortFilter() {
         btnSort.setOnClickListener(v -> {
             FilterSortBottomSheet sheet = new FilterSortBottomSheet(
-                    currentSort, currentFilter,
-                    (sort, filter) -> {
-                        currentSort = sort;
-                        currentFilter = filter;
-                        viewModel.setSortOrder(sort);
+                    currentSortColumn, isAscending,
+                    (sortColumn, asc) -> {
+                        currentSortColumn = sortColumn;
+                        isAscending = asc;
+                        String sortOrder = sortColumn + (asc ? " ASC" : " DESC");
+                        viewModel.setSortOrder(sortOrder);
                     });
             sheet.show(getParentFragmentManager(), "filter_sort");
         });

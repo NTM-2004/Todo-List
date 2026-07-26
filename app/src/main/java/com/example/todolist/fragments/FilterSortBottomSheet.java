@@ -18,16 +18,16 @@ import com.google.android.material.chip.ChipGroup;
 public class FilterSortBottomSheet extends BottomSheetDialogFragment {
 
     public interface OnApplyListener {
-        void onApply(String sort, int filter);
+        void onApply(String sortColumn, boolean isAscending);
     }
 
     private String currentSort;
-    private int currentFilter;
+    private boolean isAscending;
     private OnApplyListener listener;
 
-    public FilterSortBottomSheet(String sort, int filter, OnApplyListener listener) {
-        this.currentSort = sort;
-        this.currentFilter = filter;
+    public FilterSortBottomSheet(String sortColumn, boolean isAscending, OnApplyListener listener) {
+        this.currentSort = sortColumn;
+        this.isAscending = isAscending;
         this.listener = listener;
     }
 
@@ -43,45 +43,36 @@ public class FilterSortBottomSheet extends BottomSheetDialogFragment {
         super.onViewCreated(view, savedInstanceState);
 
         ChipGroup cgSort = view.findViewById(R.id.cgSort);
-        ChipGroup cgFilter = view.findViewById(R.id.cgFilter);
+        ChipGroup cgDirection = view.findViewById(R.id.cgDirection);
         Button btnApply = view.findViewById(R.id.btnApply);
 
         // Restore sort selection
-        if (currentSort.equals(DB.SORT_BY_DEADLINE)) {
+        if (currentSort.contains(DB.COLUMN_DEADLINE)) {
             ((Chip) view.findViewById(R.id.chipSortDeadline)).setChecked(true);
-        } else if (currentSort.equals(DB.SORT_BY_PRIORITY)) {
+        } else if (currentSort.contains(DB.COLUMN_PRIORITY)) {
             ((Chip) view.findViewById(R.id.chipSortPriority)).setChecked(true);
         } else {
             ((Chip) view.findViewById(R.id.chipSortCreated)).setChecked(true);
         }
 
-        // Restore filter selection
-        switch (currentFilter) {
-            case DB.FILTER_INCOMPLETE:
-                ((Chip) view.findViewById(R.id.chipFilterIncomplete)).setChecked(true); break;
-            case DB.FILTER_COMPLETE:
-                ((Chip) view.findViewById(R.id.chipFilterComplete)).setChecked(true); break;
-            case DB.FILTER_OVERDUE:
-                ((Chip) view.findViewById(R.id.chipFilterOverdue)).setChecked(true); break;
-            default:
-                ((Chip) view.findViewById(R.id.chipFilterAll)).setChecked(true);
+        // Restore direction selection
+        if (isAscending) {
+            ((Chip) view.findViewById(R.id.chipAsc)).setChecked(true);
+        } else {
+            ((Chip) view.findViewById(R.id.chipDesc)).setChecked(true);
         }
 
         btnApply.setOnClickListener(v -> {
-            // Get selected sort
+            // Get selected sort column
             int sortId = cgSort.getCheckedChipId();
-            String sort = DB.SORT_BY_CREATED;
-            if (sortId == R.id.chipSortDeadline) sort = DB.SORT_BY_DEADLINE;
-            else if (sortId == R.id.chipSortPriority) sort = DB.SORT_BY_PRIORITY;
+            String sortColumn = DB.COLUMN_CREATED_TIME;
+            if (sortId == R.id.chipSortDeadline) sortColumn = DB.COLUMN_DEADLINE;
+            else if (sortId == R.id.chipSortPriority) sortColumn = DB.COLUMN_PRIORITY;
 
-            // Get selected filter
-            int filterId = cgFilter.getCheckedChipId();
-            int filter = DB.FILTER_ALL;
-            if (filterId == R.id.chipFilterIncomplete) filter = DB.FILTER_INCOMPLETE;
-            else if (filterId == R.id.chipFilterComplete) filter = DB.FILTER_COMPLETE;
-            else if (filterId == R.id.chipFilterOverdue) filter = DB.FILTER_OVERDUE;
+            // Get selected direction
+            boolean asc = cgDirection.getCheckedChipId() == R.id.chipAsc;
 
-            if (listener != null) listener.onApply(sort, filter);
+            if (listener != null) listener.onApply(sortColumn, asc);
             dismiss();
         });
     }

@@ -46,18 +46,19 @@
     </LinearLayout>
 
     <!-- Tabs -->
+
+    <!-- ViewPager2 -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
+        style="@style/Widget.Material3.TabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/windowBackground"
         app:tabIndicatorColor="@color/color_primary"
-        app:tabSelectedTextColor="@color/color_primary"
-        app:tabTextColor="@color/text_secondary"
         app:tabRippleColor="@color/ripple"
-        style="@style/Widget.Material3.TabLayout" />
+        app:tabSelectedTextColor="@color/color_primary"
+        app:tabTextColor="@color/text_secondary" />
 
-    <!-- ViewPager2 -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="match_parent"

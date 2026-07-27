@@ -75,3 +75,30 @@ sequenceDiagram
     AddFrag->>AddFrag: Toast "Task đã thêm!"
     AddFrag->>Nav: navigateUp()
     Nav-->>User: Quay lại màn hình danh sách (Home)
+-------------------------------------------------------
+4. notification
+sequenceDiagram
+    participant Main as MainActivity
+    participant Add as AddTaskFragment
+    participant DNM as DeadlineNotificationManager
+    participant Alarm as AlarmManager (System)
+    participant Receiver as DeadlineReceiver
+    participant NM as NotificationManager
+
+    Note over Main, NM: Giai đoạn 1: Khởi tạo
+    Main->>DNM: createNotificationChannel()
+    DNM->>NM: createNotificationChannel(channel)
+
+    Note over Main, NM: Giai đoạn 2: Đặt lịch hẹn
+    Add->>DNM: scheduleDeadlineNotification(task)
+    DNM->>DNM: Tính toán thời gian (notifyTime)
+    DNM->>Alarm: setExactAndAllowWhileIdle(notifyTime, pendingIntent)
+
+    Note over Main, NM: Giai đoạn 3: Kích hoạt thông báo
+    loop Chờ đến giờ hẹn
+        Alarm->>Alarm: Đếm ngược...
+    end
+    Alarm->>Receiver: onReceive(intent)
+    Receiver->>Receiver: Build Notification (Title, Icon, Ring)
+    Receiver->>NM: notify(taskId, notification)
+    NM-->>User: Hiển thị thông báo trên màn hình
